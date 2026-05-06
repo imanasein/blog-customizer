@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react';
 // Импорт необходимых компонентов формы
 import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
@@ -15,15 +16,8 @@ import {
 } from 'src/constants/articleProps'; //Опции для выбора ширины страницы
 
 import styles from './ArticleParamsForm.module.scss';
-import { useState } from 'react';
 
-//===TO DO: Step 2===
-// Форма редактирования свойств TO DO: Step 2
-// КАК организована композиция (кого куда вложить)???
-// Где хранить состояние???
-// Как передавать данные между формой и страницей???
-// Механика открытия/закрытия формы???
-// Реализовать форму из имеющихся компонентов!!!
+//===TO DO: Step 2=== Реализовать форму из имеющихся компонентов!!!
 
 export type ArticleParamsFormProps = {
 	initialParams: ArticleStateType; // Начальные параметры статьи, которые будут отображаться в форме при открытии
@@ -34,7 +28,7 @@ export const ArticleParamsForm = ({
 	initialParams,
 	onApply,
 }: ArticleParamsFormProps) => {
-	//======State формы Step 2.1======
+	//====== TO DO: Step 3 State формы======
 	const [fontFamilyOption, setFontFamilyOption] = useState(
 		initialParams.fontFamilyOption
 	); // state опций выбора шрифта
@@ -47,14 +41,31 @@ export const ArticleParamsForm = ({
 	); // state опций выбора цвета фона страницы
 	const [contentWidth, setContentWidth] = useState(initialParams.contentWidth); // state опций выбора ширины страницы
 
+	//===TO DO: Step 2.1 Реализовать открытие/закрытие формы при клике на кнопку
 	const [isOpen, setIsOpen] = useState(false); // Состояние для управления открытием/закрытием формы
 
 	const handleToggle = () => {
 		setIsOpen((prev) => !prev);
 	};
+	//===TO DO: Step 2.2 Реализовать открытие/закрытие формы при клике вне формы
+	const asideRef = useRef<HTMLElement | null>(null); // Реф для отслеживания кликов вне формы
 
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (!asideRef.current) return; // Если реф не установлен, ничего не делаем
+			if (!asideRef.current.contains(event.target as Node)) {
+				// Проверяем, был ли клик вне формы
+				setIsOpen(false); // Закрываем форму, если клик был вне её
+			}
+		};
+		document.addEventListener('mousedown', handleClickOutside); // Добавляем обработчик кликов по документу
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside); // Чистим обработчик при размонтировании компонента
+		};
+	}, []);
+
+	//====== TO DO: Step 3.2 Обработчик отправки формы на кнопку "Применить"======
 	const handleSubmit = (event: React.FormEvent) => {
-		// Обработчик отправки формы на кнопку "Применить"
 		event.preventDefault();
 		onApply({
 			fontFamilyOption,
@@ -63,24 +74,16 @@ export const ArticleParamsForm = ({
 			backgroundColor,
 			contentWidth,
 		});
-		console.log('Применить:', {
-			fontFamilyOption,
-			fontSizeOption,
-			fontColor,
-			backgroundColor,
-			contentWidth,
-		}); // ОТЛАДКА ПРОВЕРКА В КОНСОЛИ!!!!
 	};
 
+	//====== TO DO: Step 3.2 Обработчик отправки формы на кнопку "Применить"======
 	const handleReset = () => {
-		// Обработчик сброса формы на кнопку "Сбросить" Чтобы СБРОСИЛСЯ STATE
 		setFontFamilyOption(initialParams.fontFamilyOption);
 		setFontSizeOption(initialParams.fontSizeOption);
 		setFontColor(initialParams.fontColor);
 		setBackgroundColor(initialParams.backgroundColor);
 		setContentWidth(initialParams.contentWidth);
 		onApply(initialParams); // Вызываем функцию обратного вызова с начальными параметрами, чтобы сбросить состояние статьи
-		console.log('Сброс состояния!'); // ОТЛАДКА ПРОВЕРКА В КОНСОЛИ!!!!
 	};
 
 	return (
@@ -88,6 +91,7 @@ export const ArticleParamsForm = ({
 			<ArrowButton isOpen={isOpen} onClick={handleToggle} />{' '}
 			{/* Кнопка открытия/закрытия формы */}
 			<aside
+				ref={asideRef}
 				className={`${styles.container} ${
 					isOpen ? styles.container_open : ''
 				}`}>

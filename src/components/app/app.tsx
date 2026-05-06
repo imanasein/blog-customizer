@@ -8,14 +8,14 @@ import { defaultArticleState } from './../../constants/articleProps';
 import styles from './app.module.scss';
 
 export const App = () => {
-	const [appliedParams, setAppliedParams] = useState(defaultArticleState); // State для хранения примененных параметров статьи
+	const [appliedParams, setAppliedParams] = useState(defaultArticleState); // State для хранения параметров статьи (певоначальное состояние при рендере defaultArticleState)
 
 	return (
 		<main
 			className={clsx(styles.main)}
 			style={
 				{
-					'--font-family': appliedParams.fontFamilyOption.value, // раньше было '--font-family': defaultArticleState.fontFamilyOption.value
+					'--font-family': appliedParams.fontFamilyOption.value,
 					'--font-size': appliedParams.fontSizeOption.value,
 					'--font-color': appliedParams.fontColor.value,
 					'--container-width': appliedParams.contentWidth.value,
